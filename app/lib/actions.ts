@@ -81,7 +81,10 @@ export async function createInvoice(formData: FormData): Promise<void> {
   redirect("/dashboard/invoices");
 }
 
-export async function updateInvoice(id: string, formData: FormData) {
+export async function updateInvoice(
+  id: string,
+  formData: FormData
+): Promise<void> {
   const { customerId, amount, status } = UpdateInvoiceSchema.parse({
     customerId: formData.get("customerId"),
     amount: formData.get("amount"),
@@ -97,7 +100,8 @@ export async function updateInvoice(id: string, formData: FormData) {
       WHERE id = ${id}
     `;
   } catch (err) {
-    return { message: "Database Error: Failed to update invoice" };
+    console.error("Database Error: Failed to update invoice", err);
+    return;
   }
 
   revalidatePath("/dashboard/invoices");
