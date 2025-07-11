@@ -3,6 +3,7 @@ import { poppins } from "@/app/ui/fonts";
 import Search from "@/app/ui/search";
 import { FormattedCustomersTable } from "@/app/lib/definitions";
 import CustomerActions from "./customer-actions";
+import { CreateCustomer } from "./buttons";
 
 export default function CustomersTable({
   customers,
@@ -14,7 +15,10 @@ export default function CustomersTable({
       <h1 className={`${poppins.className} mb-8 text-xl md:text-2xl`}>
         Customers
       </h1>
-      <Search placeholder="Search customers..." />
+      <div className="flex items-center space-x-2">
+        <Search placeholder="Search customers..." />
+        <CreateCustomer />
+      </div>
       <div className="mt-6 flow-root">
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full align-middle">
