@@ -7,8 +7,18 @@ export const metadata: Metadata = {
   title: "Customers",
 };
 
-export default async function Page() {
-  const customers: FormattedCustomersTable[] = await fetchFilteredCustomers("");
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: { query?: string; page?: string };
+}) {
+  const query = searchParams?.query ?? "";
+  const currentPage = Number(searchParams?.page) || 1;
+
+  const customers: FormattedCustomersTable[] = await fetchFilteredCustomers(
+    query,
+    currentPage
+  );
 
   return (
     <div className="w-full">
