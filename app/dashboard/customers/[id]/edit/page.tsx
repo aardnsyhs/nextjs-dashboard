@@ -8,7 +8,13 @@ export const metadata: Metadata = {
   title: "Customers Edit",
 };
 
-export default async function Page({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: {
+    id: string;
+  };
+};
+
+export default async function Page({ params }: PageProps) {
   const id = params.id;
   const customer = await fetchCustomerById(id);
 
