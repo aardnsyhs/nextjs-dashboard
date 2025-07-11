@@ -5,6 +5,9 @@ import {
   HomeIcon,
   DocumentDuplicateIcon,
   ArchiveBoxIcon,
+  InformationCircleIcon,
+  PhoneIcon,
+  UserIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import Link from "next/link";
@@ -21,6 +24,9 @@ const links = [
   },
   { name: "Customers", href: "/dashboard/customers", icon: UserGroupIcon },
   { name: "Products", href: "/dashboard/products", icon: ArchiveBoxIcon },
+  { name: "About", href: "/dashboard/about", icon: InformationCircleIcon },
+  { name: "Contact", href: "/dashboard/contact", icon: PhoneIcon },
+  { name: "Profile", href: "/dashboard/profile", icon: UserIcon },
 ];
 
 export default function NavLinks() {
