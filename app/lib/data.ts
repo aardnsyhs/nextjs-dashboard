@@ -235,3 +235,13 @@ export async function fetchCustomerById(id: string): Promise<Customer | null> {
     return null;
   }
 }
+
+export async function fetchProductPages(query: string): Promise<number> {
+  const count = await sql`
+    SELECT COUNT(*) FROM products
+    WHERE name ILIKE ${`%${query}%`};
+  `;
+  const total = Number(count[0].count);
+  const perPage = 10;
+  return Math.ceil(total / perPage);
+}

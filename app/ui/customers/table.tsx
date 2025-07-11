@@ -117,7 +117,7 @@ export default function CustomersTable({
                       <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
                         {customer.total_paid}
                       </td>
-                      <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                      <td className="whitespace-nowrap bg-white py-3 pl-6 pr-3">
                         <div className="flex justify-end gap-3">
                           <CustomerActions id={customer.id} />
                         </div>

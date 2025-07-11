@@ -27,6 +27,17 @@ const CustomerSchema = z.object({
 
 const CreateCustomerSchema = CustomerSchema.omit({ id: true });
 
+const ProductSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  price: z.coerce.number().int().nonnegative(),
+  image_url: z.string().optional(),
+});
+
+const CreateProductSchema = ProductSchema.omit({ id: true });
+const UpdateProductSchema = ProductSchema.omit({ id: true });
+
 export async function authenticate(
   prevState: string | undefined,
   formData: FormData
@@ -165,4 +176,64 @@ export async function deleteCustomer(id: string): Promise<void> {
   }
 
   revalidatePath("/dashboard/customers");
+}
+
+export async function createProduct(formData: FormData): Promise<void> {
+  const { name, description, price, image_url } = CreateProductSchema.parse({
+    name: formData.get("name"),
+    description: formData.get("description")?.toString() || "",
+    price: formData.get("price"),
+    image_url: formData.get("image_url")?.toString() || undefined,
+  });
+
+  try {
+    await sql`
+      INSERT INTO products (name, description, price, image_url)
+      VALUES (${name}, ${description}, ${price}, ${image_url ?? null});
+    `;
+  } catch (error) {
+    console.error("Failed to create product:", error);
+    return;
+  }
+
+  revalidatePath("/dashboard/products");
+  redirect("/dashboard/products");
+}
+
+export async function updateProduct(
+  id: string,
+  formData: FormData
+): Promise<void> {
+  const { name, description, price, image_url } = UpdateProductSchema.parse({
+    name: formData.get("name"),
+    description: formData.get("description")?.toString() || "",
+    price: formData.get("price"),
+    image_url: formData.get("image_url")?.toString() || undefined,
+  });
+
+  try {
+    await sql`
+      UPDATE products
+      SET name = ${name},
+          description = ${description},
+          price = ${price},
+          image_url = ${image_url ?? null}
+      WHERE id = ${id};
+    `;
+  } catch (error) {
+    console.error("Failed to update product:", error);
+    return;
+  }
+
+  revalidatePath("/dashboard/products");
+  redirect("/dashboard/products");
+}
+
+export async function deleteProduct(id: string): Promise<void> {
+  try {
+    await sql`DELETE FROM products WHERE id = ${id};`;
+    revalidatePath("/dashboard/products");
+  } catch (error) {
+    console.error("Failed to delete product:", error);
+  }
 }
