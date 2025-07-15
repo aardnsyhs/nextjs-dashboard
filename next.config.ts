@@ -14,7 +14,16 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: false,
   },
   images: {
-    domains: ["avatars.githubusercontent.com", "your-image-cdn.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "your-image-cdn.com",
+      },
+    ],
   },
 };
 

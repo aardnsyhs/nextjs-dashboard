@@ -1,9 +1,15 @@
 import Image from "next/image";
-import { poppins } from "@/app/ui/fonts";
-import Search from "@/app/ui/search";
 import { FormattedCustomersTable } from "@/app/lib/definitions";
 import CustomerActions from "./customer-actions";
-import { CreateCustomer } from "./buttons";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function CustomersTable({
   customers,
@@ -15,78 +21,61 @@ export default function CustomersTable({
       <div className="mt-6 flow-root">
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden rounded-md bg-gray-50 p-2 md:pt-0">
-              <div className="md:hidden">
-                {customers?.map((customer) => (
-                  <div
-                    key={customer.id}
-                    className="mb-2 w-full rounded-md bg-white p-4"
-                  >
-                    <div className="flex items-center justify-between border-b pb-4">
+            <div className="md:hidden space-y-4">
+              {customers?.map((customer) => (
+                <Card key={customer.id}>
+                  <CardContent className="p-4 space-y-4">
+                    <div className="flex items-center gap-3 border-b pb-4">
+                      <Image
+                        src={customer.image_url}
+                        className="rounded-full"
+                        alt={`${customer.name}'s profile picture`}
+                        width={28}
+                        height={28}
+                      />
                       <div>
-                        <div className="mb-2 flex items-center">
-                          <div className="flex items-center gap-3">
-                            <Image
-                              src={customer.image_url}
-                              className="rounded-full"
-                              alt={`${customer.name}'s profile picture`}
-                              width={28}
-                              height={28}
-                            />
-                            <p>{customer.name}</p>
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium">{customer.name}</p>
+                        <p className="text-sm text-muted-foreground">
                           {customer.email}
                         </p>
                       </div>
                     </div>
-                    <div className="flex w-full items-center justify-between border-b py-5">
-                      <div className="flex w-1/2 flex-col">
-                        <p className="text-xs">Pending</p>
+                    <div className="flex justify-between border-b pb-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground text-xs">Pending</p>
                         <p className="font-medium">{customer.total_pending}</p>
                       </div>
-                      <div className="flex w-1/2 flex-col">
-                        <p className="text-xs">Paid</p>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Paid</p>
                         <p className="font-medium">{customer.total_paid}</p>
                       </div>
                     </div>
-                    <div className="pt-4 text-sm">
+                    <div className="text-sm">
                       <p>{customer.total_invoices} invoices</p>
                     </div>
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end">
                       <CustomerActions id={customer.id} />
                     </div>
-                  </div>
-                ))}
-              </div>
-              <table className="hidden min-w-full rounded-md text-gray-900 md:table">
-                <thead className="rounded-md bg-gray-50 text-left text-sm font-normal">
-                  <tr>
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                      Name
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Email
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Total Invoices
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Total Pending
-                    </th>
-                    <th scope="col" className="px-4 py-5 font-medium">
-                      Total Paid
-                    </th>
-                    <th scope="col" className="relative py-3 pl-6 pr-3">
-                      <span className="sr-only">Edit</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 text-gray-900">
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="pl-6">Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Total Invoices</TableHead>
+                    <TableHead>Total Pending</TableHead>
+                    <TableHead>Total Paid</TableHead>
+                    <TableHead className="text-right pr-6">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {customers.map((customer) => (
-                    <tr key={customer.id} className="group">
-                      <td className="whitespace-nowrap bg-white py-5 pl-4 pr-3 text-sm text-black sm:pl-6">
+                    <TableRow key={customer.id}>
+                      <TableCell className="pl-6">
                         <div className="flex items-center gap-3">
                           <Image
                             src={customer.image_url}
@@ -97,28 +86,18 @@ export default function CustomersTable({
                           />
                           <p>{customer.name}</p>
                         </div>
-                      </td>
-                      <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                        {customer.email}
-                      </td>
-                      <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                        {customer.total_invoices}
-                      </td>
-                      <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                        {customer.total_pending}
-                      </td>
-                      <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                        {customer.total_paid}
-                      </td>
-                      <td className="whitespace-nowrap bg-white py-3 pl-6 pr-3">
-                        <div className="flex justify-end gap-3">
-                          <CustomerActions id={customer.id} />
-                        </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                      <TableCell>{customer.email}</TableCell>
+                      <TableCell>{customer.total_invoices}</TableCell>
+                      <TableCell>{customer.total_pending}</TableCell>
+                      <TableCell>{customer.total_paid}</TableCell>
+                      <TableCell className="text-right pr-6">
+                        <CustomerActions id={customer.id} />
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </div>
         </div>

@@ -1,64 +1,64 @@
+"use client";
+
 import { createCustomer } from "@/app/lib/actions";
 import Link from "next/link";
-import { Button } from "@/app/ui/button";
-import { EnvelopeIcon, PhotoIcon, UserIcon } from "@heroicons/react/24/outline";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { UserIcon, EnvelopeIcon, PhotoIcon } from "@heroicons/react/24/outline";
 
 export default function CreateCustomerForm() {
   return (
     <form action={createCustomer}>
-      <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        <div className="mb-4">
-          <label htmlFor="name" className="mb-2 block text-sm font-medium">
-            Full Name
-          </label>
-          <div className="relative">
-            <input
-              id="name"
-              name="name"
-              type="text"
-              required
-              placeholder="Enter full name"
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-            />
-            <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+      <Card>
+        <CardContent className="p-6 space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name</Label>
+            <div className="relative">
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                required
+                placeholder="Enter full name"
+                className="pl-10"
+              />
+              <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            </div>
           </div>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="email" className="mb-2 block text-sm font-medium">
-            Email Address
-          </label>
-          <div className="relative">
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              placeholder="example@email.com"
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-            />
-            <EnvelopeIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address</Label>
+            <div className="relative">
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                placeholder="example@email.com"
+                className="pl-10"
+              />
+              <EnvelopeIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            </div>
           </div>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="image_url" className="mb-2 block text-sm font-medium">
-            Profile Image URL
-          </label>
-          <div className="relative">
-            <input
-              id="image_url"
-              name="image_url"
-              type="text"
-              placeholder="/customers/john-doe.png"
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-            />
-            <PhotoIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+          <div className="space-y-2">
+            <Label htmlFor="image_url">Profile Image URL</Label>
+            <div className="relative">
+              <Input
+                id="image_url"
+                name="image_url"
+                placeholder="/customers/john-doe.png"
+                className="pl-10"
+              />
+              <PhotoIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
       <div className="mt-6 flex justify-end gap-4">
         <Link
           href="/dashboard/customers"
-          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+          className="h-10 px-4 flex items-center rounded-md text-sm font-medium border border-input bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
         >
           Cancel
         </Link>
