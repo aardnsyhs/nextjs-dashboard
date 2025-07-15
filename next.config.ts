@@ -1,9 +1,20 @@
 import type { NextConfig } from "next";
 
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
-  /* config options here */
+  reactStrictMode: true,
+  swcMinify: true,
+  experimental: {
+    serverActions: {},
+  },
   typescript: {
     ignoreBuildErrors: false,
+  },
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+  images: {
+    domains: ["avatars.githubusercontent.com", "your-image-cdn.com"],
   },
 };
 
