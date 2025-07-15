@@ -1,69 +1,57 @@
+"use client";
+
 import { createProduct } from "@/app/lib/actions";
 import Link from "next/link";
-import { Button } from "@/app/ui/button";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 
-export default function Form() {
+export default function CreateProductForm() {
   return (
     <form action={createProduct}>
-      <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium mb-1">
-            Product Name
-          </label>
-          <input
-            id="name"
-            name="name"
-            required
-            placeholder="e.g. T-Shirt"
-            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm"
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            htmlFor="description"
-            className="block text-sm font-medium mb-1"
-          >
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            placeholder="Product description..."
-            rows={3}
-            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="price" className="block text-sm font-medium mb-1">
-            Price (in cents)
-          </label>
-          <input
-            id="price"
-            name="price"
-            type="number"
-            step="1"
-            min="0"
-            required
-            placeholder="e.g. 10000 for Rp100.00"
-            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="image_url" className="block text-sm font-medium mb-1">
-            Image URL (optional)
-          </label>
-          <input
-            id="image_url"
-            name="image_url"
-            placeholder="https://example.com/image.jpg"
-            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm"
-          />
-        </div>
-      </div>
-      <div className="mt-4 flex justify-end gap-2">
+      <Card>
+        <CardContent className="p-6 space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="name">Product Name</Label>
+            <Input id="name" name="name" required placeholder="e.g. T-Shirt" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              name="description"
+              placeholder="Product description..."
+              rows={3}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="price">Price (in cents)</Label>
+            <Input
+              id="price"
+              name="price"
+              type="number"
+              step="1"
+              min="0"
+              required
+              placeholder="e.g. 10000 for Rp100.00"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="image_url">Image URL (optional)</Label>
+            <Input
+              id="image_url"
+              name="image_url"
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+        </CardContent>
+      </Card>
+      <div className="mt-6 flex justify-end gap-4">
         <Link
           href="/dashboard/products"
-          className="rounded-md bg-gray-100 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200"
+          className="h-10 px-4 flex items-center rounded-md text-sm font-medium border border-input bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
         >
           Cancel
         </Link>
