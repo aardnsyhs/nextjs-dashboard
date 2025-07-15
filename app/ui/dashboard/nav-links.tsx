@@ -9,12 +9,10 @@ import {
   PhoneIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
+import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
-// Map of links to display in the side navigation.
-// Depending on the size of the application, this would be stored in a database.
 const links = [
   { name: "Home", href: "/dashboard", icon: HomeIcon },
   {
@@ -33,23 +31,28 @@ export default function NavLinks() {
   const pathname = usePathname();
 
   return (
-    <>
+    <nav className="flex flex-col space-y-2 mb-2">
       {links.map((link) => {
-        const LinkIcon = link.icon;
+        const Icon = link.icon;
+        const isActive = pathname === link.href;
+
         return (
           <Link
             key={link.name}
             href={link.href}
             className={clsx(
-              "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3",
-              { "bg-sky-100 text-blue-600": pathname === link.href }
+              "flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors",
+              {
+                "bg-blue-100 text-blue-700": isActive,
+                "bg-muted text-foreground hover:bg-muted/60": !isActive,
+              }
             )}
           >
-            <LinkIcon className="w-6" />
-            <p className="hidden md:block">{link.name}</p>
+            <Icon className="h-5 w-5 shrink-0" />
+            <span>{link.name}</span>
           </Link>
         );
       })}
-    </>
+    </nav>
   );
 }
