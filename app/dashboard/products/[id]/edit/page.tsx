@@ -9,8 +9,12 @@ export const metadata: Metadata = {
   title: "Edit Product",
 };
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const id = params.id;
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
   const { rows } = await sql`SELECT * FROM products WHERE id = ${id} LIMIT 1;`;
   const product = rows[0] as Product | undefined;

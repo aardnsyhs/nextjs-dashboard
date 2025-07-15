@@ -8,8 +8,12 @@ export const metadata: Metadata = {
   title: "Customers Edit",
 };
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const id = params.id;
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
   const customer = await fetchCustomerById(id);
 
   if (!customer) {
