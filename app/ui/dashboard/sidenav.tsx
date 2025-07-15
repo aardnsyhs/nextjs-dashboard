@@ -4,18 +4,16 @@ import { signOutAction } from "@/app/lib/signout";
 import NavLinks from "@/app/ui/dashboard/nav-links";
 import AcmeLogo from "@/app/ui/acme-logo";
 import { PowerIcon } from "@heroicons/react/24/outline";
+import { Card } from "@/components/ui/card";
 
 export default function SideNav() {
   return (
-    <aside className="flex h-full flex-col px-3 py-4 md:px-2 bg-white border-r">
-      <Link
-        href="/"
-        className="mb-4 flex h-20 items-center justify-center rounded-lg bg-blue-600 md:h-32"
-      >
-        <div className="w-32 text-white md:w-40">
+    <aside className="flex h-full flex-col border-r bg-white px-3 py-4 md:px-2">
+      <Card className="mb-4 flex h-20 items-center justify-center rounded-lg bg-primary md:h-32">
+        <Link href="/" className="w-32 text-white md:w-40">
           <AcmeLogo />
-        </div>
-      </Link>
+        </Link>
+      </Card>
       <div className="flex flex-col justify-between flex-1">
         <NavLinks />
         <div className="hidden h-auto w-full grow rounded-md bg-muted md:block" />

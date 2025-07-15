@@ -31,11 +31,10 @@ export default function NavLinks() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-col space-y-2 mb-2">
+    <nav className="flex flex-col space-y-2 mb-4">
       {links.map((link) => {
         const Icon = link.icon;
         const isActive = pathname === link.href;
-
         return (
           <Link
             key={link.name}
@@ -43,7 +42,7 @@ export default function NavLinks() {
             className={clsx(
               "flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors",
               {
-                "bg-blue-100 text-blue-700": isActive,
+                "bg-primary/10 text-primary": isActive,
                 "bg-muted text-foreground hover:bg-muted/60": !isActive,
               }
             )}
