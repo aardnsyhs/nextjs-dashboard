@@ -290,3 +290,78 @@ export function ProductsTableSkeleton() {
     </div>
   );
 }
+
+export function CustomersTableSkeleton() {
+  return (
+    <div className="mt-6 flow-root animate-pulse">
+      <div className="inline-block min-w-full align-middle">
+        <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
+          <div className="md:hidden space-y-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="w-full rounded-md bg-white p-4">
+                <div className="flex items-center gap-4 border-b pb-4">
+                  <div className="h-10 w-10 rounded-full bg-gray-200" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-2/3 rounded bg-gray-200" />
+                    <div className="h-3 w-1/2 rounded bg-gray-100" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="h-5 w-24 rounded bg-gray-200" />
+                  <div className="flex gap-2">
+                    <div className="h-8 w-8 rounded bg-gray-200" />
+                    <div className="h-8 w-8 rounded bg-gray-200" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <table className="hidden min-w-full text-gray-900 md:table">
+            <thead className="rounded-lg text-left text-sm font-normal">
+              <tr>
+                <th className="px-4 py-5 font-medium sm:pl-6">Name</th>
+                <th className="px-3 py-5 font-medium">Email</th>
+                <th className="px-3 py-5 font-medium">Phone</th>
+                <th className="py-3 pl-6 pr-3 text-right">
+                  <span className="sr-only">Actions</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <tr
+                  key={i}
+                  className="border-b text-sm last-of-type:border-none
+                    [&:first-child>td:first-child]:rounded-tl-lg
+                    [&:first-child>td:last-child]:rounded-tr-lg
+                    [&:last-child>td:first-child]:rounded-bl-lg
+                    [&:last-child>td:last-child]:rounded-br-lg"
+                >
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-gray-200" />
+                      <div className="h-4 w-32 rounded bg-gray-200" />
+                    </div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    <div className="h-3 w-40 rounded bg-gray-100" />
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    <div className="h-4 w-20 rounded bg-gray-200" />
+                  </td>
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    <div className="flex justify-end gap-2">
+                      <div className="h-8 w-8 rounded bg-gray-200" />
+                      <div className="h-8 w-8 rounded bg-gray-200" />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

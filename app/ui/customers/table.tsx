@@ -12,13 +12,6 @@ export default function CustomersTable({
 }) {
   return (
     <div className="w-full">
-      <h1 className={`${poppins.className} mb-8 text-xl md:text-2xl`}>
-        Customers
-      </h1>
-      <div className="flex items-center space-x-2">
-        <Search placeholder="Search customers..." />
-        <CreateCustomer />
-      </div>
       <div className="mt-6 flow-root">
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full align-middle">
