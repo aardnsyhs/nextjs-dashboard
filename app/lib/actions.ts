@@ -6,6 +6,7 @@ import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import bcrypt from "bcrypt";
 
 const InvoiceSchema = z.object({
   id: z.string(),
@@ -37,6 +38,42 @@ const ProductSchema = z.object({
 
 const CreateProductSchema = ProductSchema.omit({ id: true });
 const UpdateProductSchema = ProductSchema.omit({ id: true });
+
+const RegisterSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email(),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export async function registerUser(
+  prevState: string | undefined,
+  formData: FormData
+): Promise<string | undefined> {
+  const { name, email, password } = RegisterSchema.parse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+
+  try {
+    const existingUser = await sql`SELECT * FROM users WHERE email = ${email}`;
+    if ((existingUser.rowCount ?? 0) > 0) {
+      return "Email already exists.";
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await sql`
+      INSERT INTO users (name, email, password)
+      VALUES (${name}, ${email}, ${hashedPassword});
+    `;
+  } catch (err) {
+    console.error("Registration failed:", err);
+    return "Something went wrong.";
+  }
+
+  redirect("/login");
+}
 
 export async function authenticate(
   prevState: string | undefined,

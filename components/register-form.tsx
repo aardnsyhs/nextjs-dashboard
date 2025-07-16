@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { authenticate } from "@/app/lib/actions";
+import { registerUser } from "@/app/lib/actions";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,15 +13,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, ArrowRight } from "lucide-react";
+import { AlertTriangle, UserPlus } from "lucide-react";
 import Link from "next/link";
 
-export function LoginForm({
+export function RegisterForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
+    registerUser,
     undefined
   );
 
@@ -29,13 +29,17 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">Register</CardTitle>
           <CardDescription>
-            Enter your credentials to access your account.
+            Create a new account to get started.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form action={formAction} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input id="name" name="name" placeholder="Your name" required />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -64,13 +68,13 @@ export function LoginForm({
               </div>
             )}
             <Button type="submit" className="w-full" disabled={isPending}>
-              Log in
-              <ArrowRight className="ml-2 h-4 w-4" />
+              Sign up
+              <UserPlus className="ml-2 h-4 w-4" />
             </Button>
             <div className="mt-4 text-center text-sm">
-              Don’t have an account?{" "}
-              <Link href="/register" className="underline underline-offset-4">
-                Sign up
+              Already have an account?{" "}
+              <Link href="/login" className="underline underline-offset-4">
+                Login
               </Link>
             </div>
           </form>
