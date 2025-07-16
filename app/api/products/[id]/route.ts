@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params;
+  const { rows } = await sql`SELECT * FROM products WHERE id = ${id} LIMIT 1;`;
+  const product = rows[0];
+
+  if (!product) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  return NextResponse.json(product);
+}
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }

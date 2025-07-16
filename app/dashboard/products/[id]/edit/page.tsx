@@ -1,23 +1,24 @@
 import { notFound } from "next/navigation";
-import { sql } from "@vercel/postgres";
-import { Product } from "@/app/lib/definitions";
 import Breadcrumbs from "@/app/ui/products/breadcrumbs";
 import EditProductForm from "@/app/ui/products/edit-form";
 import { Metadata } from "next";
+import { getProductById } from "@/app/lib/productsApi";
+import { Product } from "@/app/lib/definitions";
 
 export const metadata: Metadata = {
   title: "Edit Product",
 };
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default async function Page({ params }: { params: { id: string } }) {
+  const { id } = params;
 
-  const { rows } = await sql`SELECT * FROM products WHERE id = ${id} LIMIT 1;`;
-  const product = rows[0] as Product | undefined;
+  let product: Product | null = null;
+
+  try {
+    product = await getProductById(id);
+  } catch (error) {
+    console.error("Error fetching product:", error);
+  }
 
   if (!product) {
     notFound();

@@ -58,6 +58,16 @@ export async function getProducts(): Promise<Product[]> {
   }
 }
 
+export async function getProductById(id: string): Promise<Product | null> {
+  try {
+    const response = await api.get(`/products/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch product by ID:", error);
+    throw error;
+  }
+}
+
 export async function fetchProductPages(
   query: string,
   itemsPerPage: number = 10
