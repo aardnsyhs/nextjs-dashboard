@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { deleteProduct } from "@/app/lib/actions";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -15,6 +14,10 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
+import { deleteProduct } from "@/app/lib/productsApi";
+import React, { useState } from "react";
+import { AlertTriangle } from "lucide-react";
 
 export function CreateProduct() {
   return (
@@ -38,7 +41,21 @@ export function UpdateProduct({ id }: { id: string }) {
 }
 
 export function DeleteProduct({ id }: { id: string }) {
-  const deleteProductWithId = deleteProduct.bind(null, id);
+  const router = useRouter();
+  const [error, setError] = useState("");
+
+  const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      await deleteProduct(id);
+      router.refresh();
+    } catch (err) {
+      console.error("Failed to delete product:", err);
+      setError("Failed to delete product");
+    }
+  };
 
   return (
     <AlertDialog>
@@ -49,7 +66,11 @@ export function DeleteProduct({ id }: { id: string }) {
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form action={deleteProductWithId}>
+        <form
+          onSubmit={(e) => {
+            handleDelete(e);
+          }}
+        >
           <AlertDialogHeader>
             <AlertDialogTitle>
               Are you sure you want to delete this product?
@@ -64,6 +85,12 @@ export function DeleteProduct({ id }: { id: string }) {
             <AlertDialogAction type="submit">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </form>
+        {error && (
+          <div className="flex items-center gap-2 text-sm text-red-600">
+            <AlertTriangle className="h-4 w-4" />
+            {error}
+          </div>
+        )}
       </AlertDialogContent>
     </AlertDialog>
   );

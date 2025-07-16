@@ -3,9 +3,7 @@ import Search from "@/app/ui/search";
 import Table from "@/app/ui/products/table";
 import { CreateProduct } from "@/app/ui/products/buttons";
 import { poppins } from "@/app/ui/fonts";
-import { ProductsTableSkeleton } from "@/app/ui/skeletons";
-import { Suspense } from "react";
-import { fetchProductPages } from "@/app/lib/data";
+import { fetchProductPages } from "@/app/lib/productsApi";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,14 +13,10 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: Promise<{
-    query?: string;
-    page?: string;
-  }>;
+  searchParams?: { query?: string; page?: string };
 }) {
-  const resolvedSearchParams = await searchParams;
-  const query = resolvedSearchParams?.query || "";
-  const currentPage = Number(resolvedSearchParams?.page || 1);
+  const query = searchParams?.query || "";
+  const currentPage = Number(searchParams?.page || 1);
   const totalPages = await fetchProductPages(query);
 
   return (
@@ -34,9 +28,7 @@ export default async function Page({
         <Search placeholder="Search products..." />
         <CreateProduct />
       </div>
-      <Suspense key={query + currentPage} fallback={<ProductsTableSkeleton />}>
-        <Table query={query} currentPage={currentPage} />
-      </Suspense>
+      <Table query={query} currentPage={currentPage} />
       <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />
       </div>

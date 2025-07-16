@@ -1,5 +1,6 @@
+"use client";
+
 import Image from "next/image";
-import { sql } from "@vercel/postgres";
 import { formatCurrency } from "@/app/lib/utils";
 import { Product } from "@/app/lib/definitions";
 import { DeleteProduct, UpdateProduct } from "@/app/ui/products/buttons";
@@ -12,23 +13,43 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useEffect, useState } from "react";
+import { getProducts } from "@/app/lib/productsApi";
+import { ProductsTableSkeleton } from "../skeletons";
 
-export default async function ProductTable({
+export default function ProductTable({
   query,
   currentPage,
 }: {
   query: string;
   currentPage: number;
 }) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const ITEMS_PER_PAGE = 10;
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  const { rows: products }: { rows: Product[] } = await sql`
-    SELECT * FROM products
-    WHERE name ILIKE ${`%${query}%`}
-    ORDER BY name ASC
-    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset};
-  `;
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const allProducts = await getProducts();
+        const filtered = allProducts.filter((p) =>
+          p.name.toLowerCase().includes(query.toLowerCase())
+        );
+        const paginated = filtered.slice(offset, offset + ITEMS_PER_PAGE);
+        setProducts(paginated);
+      } catch (err) {
+        console.error("Failed to fetch products", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, [query, currentPage]);
+
+  if (loading) {
+    return <ProductsTableSkeleton />;
+  }
 
   return (
     <div className="mt-6 flow-root">
@@ -49,8 +70,10 @@ export default async function ProductTable({
                       />
                     )}
                     <div>
-                      <p className="font-medium">{product.name}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="font-medium break-words max-w-[250px]">
+                        {product.name}
+                      </p>
+                      <p className="text-sm text-muted-foreground break-words max-w-[300px]">
                         {product.description || "-"}
                       </p>
                     </div>
@@ -87,15 +110,17 @@ export default async function ProductTable({
                           <Image
                             src={product.image_url}
                             alt={product.name}
-                            width={28}
-                            height={28}
+                            width={64}
+                            height={64}
                             className="rounded-md object-cover"
                           />
                         )}
-                        <p>{product.name}</p>
+                        <p className="break-words max-w-[200px]">
+                          {product.name}
+                        </p>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-muted-foreground break-words max-w-[400px]">
                       {product.description || "-"}
                     </TableCell>
                     <TableCell>{formatCurrency(product.price)}</TableCell>

@@ -1,6 +1,5 @@
 "use client";
 
-import { updateProduct } from "@/app/lib/actions";
 import { Product } from "@/app/lib/definitions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -8,12 +7,48 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { updateProduct } from "@/app/lib/productsApi";
 
 export default function EditProductForm({ product }: { product: Product }) {
-  const updateProductWithId = updateProduct.bind(null, product.id);
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    name: product.name,
+    description: product.description || "",
+    price: product.price.toString(),
+    image_url: product.image_url || "",
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      await updateProduct(product.id, {
+        ...form,
+        price: Number(form.price),
+      });
+      router.push("/dashboard/products");
+    } catch (err) {
+      console.error("Failed to update product:", err);
+      setError("Failed to update product. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <form action={updateProductWithId}>
+    <form onSubmit={handleSubmit}>
       <input type="hidden" name="id" value={product.id} />
       <Card>
         <CardContent className="p-6 space-y-6">
@@ -22,9 +57,10 @@ export default function EditProductForm({ product }: { product: Product }) {
             <Input
               id="name"
               name="name"
-              defaultValue={product.name}
+              defaultValue={form.name}
               required
               placeholder="e.g. T-Shirt"
+              onChange={handleChange}
             />
           </div>
           <div className="space-y-2">
@@ -33,8 +69,9 @@ export default function EditProductForm({ product }: { product: Product }) {
               id="description"
               name="description"
               rows={3}
-              defaultValue={product.description || ""}
+              defaultValue={form.description || ""}
               placeholder="Product description..."
+              onChange={handleChange}
             />
           </div>
           <div className="space-y-2">
@@ -46,8 +83,9 @@ export default function EditProductForm({ product }: { product: Product }) {
               step="1"
               min="0"
               required
-              defaultValue={product.price}
+              defaultValue={form.price}
               placeholder="e.g. 10000 for Rp100.00"
+              onChange={handleChange}
             />
           </div>
           <div className="space-y-2">
@@ -55,8 +93,9 @@ export default function EditProductForm({ product }: { product: Product }) {
             <Input
               id="image_url"
               name="image_url"
-              defaultValue={product.image_url || ""}
+              defaultValue={form.image_url || ""}
               placeholder="https://example.com/image.jpg"
+              onChange={handleChange}
             />
           </div>
         </CardContent>
@@ -68,7 +107,15 @@ export default function EditProductForm({ product }: { product: Product }) {
         >
           Cancel
         </Link>
-        <Button type="submit">Update</Button>
+        {loading ? (
+          <Button disabled className="h-10 px-4">
+            Updating...
+          </Button>
+        ) : (
+          <Button type="submit" className="h-10 px-4">
+            Update
+          </Button>
+        )}
       </div>
     </form>
   );
