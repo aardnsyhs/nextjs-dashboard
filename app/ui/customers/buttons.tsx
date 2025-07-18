@@ -1,6 +1,5 @@
 "use client";
 
-import { deleteCustomer } from "@/app/lib/actions";
 import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,9 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
+import { deleteCustomer } from "@/app/lib/customersApi";
+import { AlertTriangle } from "lucide-react";
 
 export function CreateCustomer() {
   return (
@@ -40,37 +42,56 @@ export function UpdateCustomer({ id }: { id: string }) {
 }
 
 export function DeleteCustomer({ id }: { id: string }) {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const [error, setError] = useState("");
 
-  const deleteCustomerWithId = deleteCustomer.bind(null, id);
+  const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      await deleteCustomer(id);
+      router.refresh();
+    } catch (err) {
+      console.error("Failed to delete customer:", err);
+      setError("Failed to delete customer");
+    }
+  };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="border p-2 hover:bg-gray-100"
-        >
-          <TrashIcon className="w-5" />
+        <Button variant="outline" size="icon">
+          <TrashIcon className="w-4 h-4" />
+          <span className="sr-only">Delete</span>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            Are you sure you want to delete this customer?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the
-            customer from the system.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <form action={deleteCustomerWithId}>
+        <form
+          onSubmit={(e) => {
+            handleDelete(e);
+          }}
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Are you sure you want to delete this customer?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              customer from the system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel type="button">Cancel</AlertDialogCancel>
             <AlertDialogAction type="submit">Delete</AlertDialogAction>
-          </form>
-        </AlertDialogFooter>
+          </AlertDialogFooter>
+        </form>
+        {error && (
+          <div className="flex items-center gap-2 text-sm text-red-600">
+            <AlertTriangle className="h-4 w-4" />
+            {error}
+          </div>
+        )}
       </AlertDialogContent>
     </AlertDialog>
   );

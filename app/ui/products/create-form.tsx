@@ -111,7 +111,7 @@ export default function CreateProductForm() {
         {loading ? (
           <Button disabled>Creating...</Button>
         ) : (
-          <Button type="submit">Create</Button>
+          <Button type="submit">Create Product</Button>
         )}
       </div>
     </form>

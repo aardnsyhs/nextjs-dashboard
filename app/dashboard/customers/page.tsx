@@ -5,9 +5,8 @@ import { CreateCustomer } from "@/app/ui/customers/buttons";
 import { poppins } from "@/app/ui/fonts";
 import { CustomersTableSkeleton } from "@/app/ui/skeletons";
 import { Suspense } from "react";
-import { fetchCustomerPages } from "@/app/lib/data";
+import { getCustomerPages, getFilteredCustomers } from "@/app/lib/customersApi";
 import { Metadata } from "next";
-import { fetchFilteredCustomers } from "@/app/lib/data";
 import { FormattedCustomersTable } from "@/app/lib/definitions";
 
 export const metadata: Metadata = {
@@ -25,9 +24,9 @@ export default async function Page({
   const resolvedSearchParams = await searchParams;
   const query = resolvedSearchParams?.query || "";
   const currentPage = Number(resolvedSearchParams?.page || 1);
-  const totalPages = await fetchCustomerPages(query);
+  const totalPages = await getCustomerPages(query);
 
-  const customers: FormattedCustomersTable[] = await fetchFilteredCustomers(
+  const customers: FormattedCustomersTable[] = await getFilteredCustomers(
     query,
     currentPage
   );
