@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { AlertTriangle } from "lucide-react";
 
 export function CreateInvoice() {
   return (
@@ -39,36 +41,54 @@ export function UpdateInvoice({ id }: { id: string }) {
 }
 
 export function DeleteInvoice({ id }: { id: string }) {
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const [error, setError] = useState("");
+
+  const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("id", id);
+      await deleteInvoice(formData);
+      router.refresh();
+    } catch (err) {
+      console.error("Failed to delete invoice:", err);
+      setError("Failed to delete invoice");
+    }
+  };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="border p-2 hover:bg-gray-100"
-        >
-          <TrashIcon className="w-5" />
+        <Button variant="outline" size="icon">
+          <TrashIcon className="w-4 h-4" />
+          <span className="sr-only">Delete</span>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            Are you sure you want to delete this invoice?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the
-            invoice from the system.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <form action={deleteInvoice}>
-            <input type="hidden" name="id" value={id} />
+        <form onSubmit={handleDelete}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Are you sure you want to delete this invoice?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              invoice from the system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel type="button">Cancel</AlertDialogCancel>
             <AlertDialogAction type="submit">Delete</AlertDialogAction>
-          </form>
-        </AlertDialogFooter>
+          </AlertDialogFooter>
+        </form>
+        {error && (
+          <div className="flex items-center gap-2 text-sm text-red-600">
+            <AlertTriangle className="h-4 w-4" />
+            {error}
+          </div>
+        )}
       </AlertDialogContent>
     </AlertDialog>
   );

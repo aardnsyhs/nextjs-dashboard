@@ -5,7 +5,7 @@ import { CreateInvoice } from "@/app/ui/invoices/buttons";
 import { poppins } from "@/app/ui/fonts";
 import { InvoicesTableSkeleton } from "@/app/ui/skeletons";
 import { Suspense } from "react";
-import { fetchInvoicesPages } from "@/app/lib/data";
+import { fetchInvoicePages } from "@/app/lib/invoicesApi";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export default async function Page({
   const resolvedSearchParams = await searchParams;
   const query = resolvedSearchParams?.query || "";
   const currentPage = Number(resolvedSearchParams?.page || 1);
-  const totalPages = await fetchInvoicesPages(query);
+  const totalPages = await fetchInvoicePages(query);
 
   return (
     <div className="w-full">

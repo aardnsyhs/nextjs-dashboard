@@ -1,7 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  CheckIcon,
+  ClockIcon,
+  CurrencyDollarIcon,
+  UserCircleIcon,
+} from "@heroicons/react/24/outline";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -10,37 +20,68 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import {
-  CheckIcon,
-  ClockIcon,
-  CurrencyDollarIcon,
-  UserCircleIcon,
-} from "@heroicons/react/24/outline";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { updateInvoice } from "@/app/lib/actions";
+import { updateInvoice } from "@/app/lib/invoicesApi";
+import { fetchCustomers } from "@/app/lib/customersApi";
 import { CustomerField, InvoiceForm } from "@/app/lib/definitions";
 
-export default function EditInvoiceForm({
-  invoice,
-  customers,
-}: {
-  invoice: InvoiceForm;
-  customers: CustomerField[];
-}) {
-  const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
+export default function EditInvoiceForm({ invoice }: { invoice: InvoiceForm }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [customers, setCustomers] = useState<CustomerField[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(invoice.customer_id);
+  const [amount, setAmount] = useState(invoice.amount.toString());
+  const [status, setStatus] = useState<"pending" | "paid">(invoice.status);
+
+  useEffect(() => {
+    const loadCustomers = async () => {
+      try {
+        const res = await fetchCustomers();
+        setCustomers(res);
+      } catch (err) {
+        console.error("Failed to fetch customers:", err);
+      }
+    };
+
+    loadCustomers();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const amount = parseFloat(formData.get("amount") as string);
+    const status = formData.get("status") as string;
+    const date = new Date().toISOString();
+
+    try {
+      await updateInvoice(invoice.id, {
+        customer_id: selectedCustomer,
+        amount,
+        status,
+        date,
+      });
+      router.push("/dashboard/invoices");
+    } catch (error) {
+      console.error("Failed to update invoice:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <form action={updateInvoiceWithId}>
-      <input type="hidden" name="id" value={invoice.id} />
+    <form onSubmit={handleSubmit}>
       <Card>
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="space-y-6 p-6">
           <div className="space-y-2">
-            <Label htmlFor="customerId">Choose customer</Label>
+            <Label htmlFor="customer">Choose customer</Label>
             <div className="relative">
-              <Select name="customerId" defaultValue={invoice.customer_id}>
-                <SelectTrigger className="pl-10">
+              <Select
+                onValueChange={setSelectedCustomer}
+                value={selectedCustomer}
+              >
+                <SelectTrigger className="w-full pl-10">
                   <SelectValue placeholder="Select a customer" />
                 </SelectTrigger>
                 <SelectContent>
@@ -55,26 +96,30 @@ export default function EditInvoiceForm({
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="amount">Amount</Label>
+            <Label htmlFor="amount">Amount (USD)</Label>
             <div className="relative">
               <Input
                 id="amount"
                 name="amount"
                 type="number"
                 step="0.01"
-                defaultValue={invoice.amount}
                 placeholder="Enter USD amount"
+                required
                 className="pl-10"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
               />
               <CurrencyDollarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Status</Label>
+            <Label className="text-sm font-medium">Set status</Label>
             <RadioGroup
               name="status"
-              defaultValue={invoice.status}
               className="flex items-center gap-6"
+              value={status}
+              onValueChange={(value) => setStatus(value as "pending" | "paid")}
+              required
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="pending" id="status-pending" />
@@ -89,7 +134,7 @@ export default function EditInvoiceForm({
                 <RadioGroupItem value="paid" id="status-paid" />
                 <Label
                   htmlFor="status-paid"
-                  className="flex items-center gap-1 text-sm text-green-700"
+                  className="flex items-center gap-1 text-sm"
                 >
                   Paid <CheckIcon className="h-4 w-4" />
                 </Label>
@@ -105,7 +150,9 @@ export default function EditInvoiceForm({
         >
           Cancel
         </Link>
-        <Button type="submit">Edit Invoice</Button>
+        <Button type="submit" disabled={loading || !selectedCustomer}>
+          {loading ? "Updating..." : "Update Invoice"}
+        </Button>
       </div>
     </form>
   );

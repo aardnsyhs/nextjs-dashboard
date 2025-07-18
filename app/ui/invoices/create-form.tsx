@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { CustomerField } from "@/app/lib/definitions";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   CheckIcon,
   ClockIcon,
@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { createInvoice } from "@/app/lib/actions";
 import {
   Select,
   SelectContent,
@@ -22,18 +21,69 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { createInvoice } from "@/app/lib/invoicesApi";
+import axios from "axios";
+import { fetchCustomers } from "@/app/lib/customersApi";
 
-export default function Form({ customers }: { customers: CustomerField[] }) {
+type Customer = {
+  id: string;
+  name: string;
+};
+
+export default function Form() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
 
+  useEffect(() => {
+    const loadCustomers = async () => {
+      try {
+        const res = await fetchCustomers();
+        setCustomers(res);
+      } catch (err) {
+        console.error("Failed to fetch customers:", err);
+      }
+    };
+
+    loadCustomers();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const amount = parseFloat(formData.get("amount") as string);
+    const status = formData.get("status") as string;
+    const date = new Date().toISOString();
+
+    try {
+      await createInvoice({
+        customer_id: selectedCustomer,
+        amount,
+        status,
+        date,
+      });
+      router.push("/dashboard/invoices");
+    } catch (error) {
+      console.error("Failed to create invoice:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <form action={createInvoice}>
+    <form onSubmit={handleSubmit}>
       <Card>
         <CardContent className="space-y-6 p-6">
           <div className="space-y-2">
             <Label htmlFor="customer">Choose customer</Label>
             <div className="relative">
-              <Select onValueChange={(value) => setSelectedCustomer(value)}>
+              <Select
+                onValueChange={(value) => setSelectedCustomer(value)}
+                value={selectedCustomer}
+              >
                 <SelectTrigger className="w-full pl-10">
                   <SelectValue placeholder="Select a customer" />
                 </SelectTrigger>
@@ -46,12 +96,6 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 </SelectContent>
               </Select>
               <UserCircleIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-              <input
-                type="hidden"
-                name="customerId"
-                value={selectedCustomer}
-                required
-              />
             </div>
           </div>
           <div className="space-y-2">
@@ -71,9 +115,13 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
           </div>
           <div className="space-y-2">
             <Label className="text-sm font-medium">Set status</Label>
-            <RadioGroup name="status" className="flex items-center gap-6">
+            <RadioGroup
+              name="status"
+              className="flex items-center gap-6"
+              required
+            >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="pending" id="status-pending" required />
+                <RadioGroupItem value="pending" id="status-pending" />
                 <Label
                   htmlFor="status-pending"
                   className="flex items-center gap-1 text-sm text-muted-foreground"
@@ -82,7 +130,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="paid" id="status-paid" required />
+                <RadioGroupItem value="paid" id="status-paid" />
                 <Label
                   htmlFor="status-paid"
                   className="flex items-center gap-1 text-sm"
@@ -101,7 +149,9 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
         >
           Cancel
         </Link>
-        <Button type="submit">Create Invoice</Button>
+        <Button type="submit" disabled={loading || !selectedCustomer}>
+          {loading ? "Creating..." : "Create Invoice"}
+        </Button>
       </div>
     </form>
   );
