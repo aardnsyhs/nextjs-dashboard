@@ -4,24 +4,34 @@ import {
   EnvelopeIcon,
   MapPinIcon,
 } from "@heroicons/react/24/outline";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function ContactPage() {
   return (
     <div className="w-full">
-      <h1 className={`${poppins.className} text-2xl font-semibold mb-4`}>
+      <h1 className={`${poppins.className} text-2xl font-semibold mb-6`}>
         Contact
       </h1>
-      <div className="rounded-lg bg-white p-6 shadow-sm text-gray-700">
-        <p className="mb-4">You can reach me at:</p>
-        <ul className="space-y-3">
-          <li className="flex items-center gap-2">
-            <EnvelopeIcon className="w-5 h-5 text-gray-500" />
-            <span>Email: ardiansyahsulistyo@gmail.com</span>
-          </li>
-          <li className="flex items-center gap-2">
-            <PhoneIcon className="w-5 h-5 text-gray-500" />
-            <span>
-              LinkedIn:{" "}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Get in Touch</CardTitle>
+        </CardHeader>
+        <Separator />
+        <CardContent className="space-y-4 text-sm text-muted-foreground mt-4">
+          <div className="flex items-start gap-3">
+            <EnvelopeIcon className="w-5 h-5 text-primary mt-0.5" />
+            <div>
+              <p className="text-gray-800 dark:text-gray-100">Email</p>
+              <span className="block text-muted-foreground">
+                ardiansyahsulistyo@gmail.com
+              </span>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <PhoneIcon className="w-5 h-5 text-primary mt-0.5" />
+            <div>
+              <p className="text-gray-800 dark:text-gray-100">LinkedIn</p>
               <a
                 href="https://www.linkedin.com/in/ardiansyah-sulistyo-832a792b8/"
                 target="_blank"
@@ -30,14 +40,19 @@ export default function ContactPage() {
               >
                 Ardiansyah Sulistyo
               </a>
-            </span>
-          </li>
-          <li className="flex items-center gap-2">
-            <MapPinIcon className="w-5 h-5 text-gray-500" />
-            <span>Location: Cimahi, Indonesia</span>
-          </li>
-        </ul>
-      </div>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <MapPinIcon className="w-5 h-5 text-primary mt-0.5" />
+            <div>
+              <p className="text-gray-800 dark:text-gray-100">Location</p>
+              <span className="block text-muted-foreground">
+                Cimahi, Indonesia
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
