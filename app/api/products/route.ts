@@ -1,28 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sql } from "@vercel/postgres";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") ?? "";
-  const page = parseInt(searchParams.get("page") || "1");
-  const limit = 10,
-    offset = (page - 1) * limit;
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const limit = 10;
+  const offset = (page - 1) * limit;
 
-  const result = await sql`
-    SELECT * FROM products
-    WHERE name ILIKE ${`%${q}%`}
-    ORDER BY name
-    LIMIT ${limit} OFFSET ${offset}
-  `;
+  const products = await prisma.product.findMany({
+    where: { name: { contains: q, mode: "insensitive" } },
+    orderBy: { name: "asc" },
+    take: limit,
+    skip: offset,
+  });
 
-  return NextResponse.json(result.rows);
+  return NextResponse.json(products);
 }
 
 export async function POST(req: NextRequest) {
   const { name, description, price, image_url } = await req.json();
-  await sql`
-    INSERT INTO products (name, description, price, image_url)
-    VALUES (${name}, ${description}, ${price}, ${image_url ?? null})
-  `;
-  return NextResponse.json({ success: true });
+  const product = await prisma.product.create({
+    data: { name, description, price, image_url },
+  });
+  return NextResponse.json({ success: true, product });
 }

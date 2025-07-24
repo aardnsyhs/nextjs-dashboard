@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sql } from "@vercel/postgres";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function GET(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params;
-  const { rows } = await sql`SELECT * FROM invoices WHERE id = ${id} LIMIT 1;`;
-  const invoice = rows[0];
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: params.id },
+  });
 
   if (!invoice) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -20,14 +22,11 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const id = params.id;
   const { customer_id, amount, status, date } = await req.json();
-
-  await sql`
-    UPDATE invoices
-    SET customer_id = ${customer_id}, amount = ${amount}, status = ${status}, date = ${date}
-    WHERE id = ${id}
-  `;
+  await prisma.invoice.update({
+    where: { id: params.id },
+    data: { customerId: customer_id, amount, status, date },
+  });
 
   return NextResponse.json({ success: true });
 }
@@ -36,12 +35,6 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const id = params.id;
-
-  await sql`
-    DELETE FROM invoices
-    WHERE id = ${id}
-  `;
-
+  await prisma.invoice.delete({ where: { id: params.id } });
   return NextResponse.json({ success: true });
 }

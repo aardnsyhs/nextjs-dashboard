@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sql } from "@vercel/postgres";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -8,23 +10,20 @@ export async function GET(req: NextRequest) {
   const limit = 10;
   const offset = (page - 1) * limit;
 
-  const result = await sql`
-    SELECT * FROM customers
-    WHERE name ILIKE ${"%" + q + "%"}
-    ORDER BY name
-    LIMIT ${limit} OFFSET ${offset}
-  `;
+  const customers = await prisma.customer.findMany({
+    where: { name: { contains: q, mode: "insensitive" } },
+    orderBy: { name: "asc" },
+    take: limit,
+    skip: offset,
+  });
 
-  return NextResponse.json(result.rows);
+  return NextResponse.json(customers);
 }
 
 export async function POST(req: NextRequest) {
   const { name, email, image_url } = await req.json();
-
-  await sql`
-    INSERT INTO customers (name, email, image_url)
-    VALUES (${name}, ${email}, ${image_url})
-  `;
-
-  return NextResponse.json({ success: true });
+  const customer = await prisma.customer.create({
+    data: { name, email, image_url },
+  });
+  return NextResponse.json({ success: true, customer });
 }

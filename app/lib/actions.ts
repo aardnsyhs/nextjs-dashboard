@@ -1,12 +1,14 @@
 "use server";
 
 import { signIn } from "@/auth";
-import { sql } from "@vercel/postgres";
+import { PrismaClient } from "@prisma/client";
 import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import bcrypt from "bcrypt";
+
+const prisma = new PrismaClient();
 
 const InvoiceSchema = z.object({
   id: z.string(),
@@ -56,17 +58,20 @@ export async function registerUser(
   });
 
   try {
-    const existingUser = await sql`SELECT * FROM users WHERE email = ${email}`;
-    if ((existingUser.rowCount ?? 0) > 0) {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
       return "Email already exists.";
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await sql`
-      INSERT INTO users (name, email, password)
-      VALUES (${name}, ${email}, ${hashedPassword});
-    `;
+    await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+      },
+    });
   } catch (err) {
     console.error("Registration failed:", err);
     return "Something went wrong.";
@@ -102,13 +107,17 @@ export async function createInvoice(formData: FormData): Promise<void> {
   });
 
   const amountInCents = amount * 100;
-  const date = new Date().toISOString().split("T")[0];
+  const date = new Date().toISOString();
 
   try {
-    await sql`
-      INSERT INTO invoices (customer_id, amount, status, date)
-      VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-    `;
+    await prisma.invoice.create({
+      data: {
+        customerId: customerId,
+        amount: amountInCents,
+        status,
+        date: date,
+      },
+    });
   } catch (err) {
     console.error("Database Error: Failed to create invoice", err);
     return;
@@ -131,11 +140,14 @@ export async function updateInvoice(
   const amountInCents = amount * 100;
 
   try {
-    await sql`
-      UPDATE invoices
-      SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-      WHERE id = ${id}
-    `;
+    await prisma.invoice.update({
+      where: { id },
+      data: {
+        customerId: customerId,
+        amount: amountInCents,
+        status,
+      },
+    });
   } catch (err) {
     console.error("Database Error: Failed to update invoice", err);
     return;
@@ -154,7 +166,7 @@ export async function deleteInvoice(formData: FormData): Promise<void> {
   }
 
   try {
-    await sql`DELETE FROM invoices WHERE id = ${id}`;
+    await prisma.invoice.delete({ where: { id } });
     revalidatePath("/dashboard/invoices");
   } catch (err) {
     console.error("Database Error: Failed to delete invoice", err);
@@ -169,10 +181,13 @@ export async function createCustomer(formData: FormData): Promise<void> {
   });
 
   try {
-    await sql`
-      INSERT INTO customers (name, email, image_url)
-      VALUES (${name}, ${email}, ${image_url ?? null})
-    `;
+    await prisma.customer.create({
+      data: {
+        name,
+        email,
+        image_url,
+      },
+    });
   } catch (err) {
     console.error("Database Error:", err);
     return;
@@ -194,11 +209,10 @@ export async function updateCustomer(formData: FormData): Promise<void> {
   }
 
   try {
-    await sql`
-      UPDATE customers
-      SET name = ${name}, email = ${email}, image_url = ${image_url}
-      WHERE id = ${id}
-    `;
+    await prisma.customer.update({
+      where: { id },
+      data: { name, email, image_url },
+    });
   } catch (err) {
     console.error("Database error:", err);
     return;
@@ -210,7 +224,7 @@ export async function updateCustomer(formData: FormData): Promise<void> {
 
 export async function deleteCustomer(id: string): Promise<void> {
   try {
-    await sql`DELETE FROM customers WHERE id = ${id}`;
+    await prisma.customer.delete({ where: { id } });
   } catch (err) {
     console.error("Database Error: Failed to delete customer", err);
     return;
@@ -228,10 +242,14 @@ export async function createProduct(formData: FormData): Promise<void> {
   });
 
   try {
-    await sql`
-      INSERT INTO products (name, description, price, image_url)
-      VALUES (${name}, ${description}, ${price}, ${image_url ?? null});
-    `;
+    await prisma.product.create({
+      data: {
+        name,
+        description,
+        price,
+        image_url,
+      },
+    });
   } catch (error) {
     console.error("Failed to create product:", error);
     return;
@@ -253,14 +271,10 @@ export async function updateProduct(
   });
 
   try {
-    await sql`
-      UPDATE products
-      SET name = ${name},
-          description = ${description},
-          price = ${price},
-          image_url = ${image_url ?? null}
-      WHERE id = ${id};
-    `;
+    await prisma.product.update({
+      where: { id },
+      data: { name, description, price, image_url },
+    });
   } catch (error) {
     console.error("Failed to update product:", error);
     return;
@@ -272,7 +286,7 @@ export async function updateProduct(
 
 export async function deleteProduct(id: string): Promise<void> {
   try {
-    await sql`DELETE FROM products WHERE id = ${id};`;
+    await prisma.product.delete({ where: { id } });
     revalidatePath("/dashboard/products");
   } catch (error) {
     console.error("Failed to delete product:", error);
